@@ -1,0 +1,38 @@
+name: Android CI Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Ganti setup-java manual dengan action gradle/gradle-build-action
+    # Ini akan otomatis mendeteksi versi Java & Gradle yang dibutuhkan
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build with Gradle
+      # Gunakan command gradle langsung, bukan ./gradlew
+      run: gradle assembleDebug assembleRelease
+
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 7
+
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
+        retention-days: 7
